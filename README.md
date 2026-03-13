@@ -43,7 +43,7 @@ Visit: http://localhost:5000
 
 Example with custom URI:
 ```bash
-MONGO_URI="mongodb+srv://user:pass@cluster.mongodb.net/" python app.py
+MONGO_URI="mongodb+srv://user:.mongodb.net/" python app.py
 ```
 
 ## Features
