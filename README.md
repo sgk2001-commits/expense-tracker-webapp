@@ -39,11 +39,11 @@ Visit: http://localhost:5000
 
 | Variable | Default | Description |
 |---|---|---|
-| `MONGO_URI` | `mongodb://localhost:27017/` | MongoDB connection string |
+| `MONGO_URI` || MongoDB connection string |
 
 Example with custom URI:
 ```bash
-MONGO_URI="mongodb+srv://user:.mongodb.net/" python app.py
+
 ```
 
 ## Features
