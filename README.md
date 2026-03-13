@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ledger — Expense Tracker
 
 A clean, minimal expense tracker built with Flask + MongoDB + Vanilla JS.
@@ -75,3 +76,7 @@ expense-tracker/
 | PUT | `/api/expenses/:id` | Update expense |
 | DELETE | `/api/expenses/:id` | Delete expense |
 | GET | `/api/stats` | Aggregated stats + chart data |
+=======
+# expense-tracker-webapp
+Full-stack expense tracker using Flask, MongoDB, and JavaScript Public
+>>>>>>> ea87f3c902afbdee2085be079d834eeadc20272a
