@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ledger — Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header>
+    <div class="logo">
+      <span class="logo-mark">₹</span>
+      <span class="logo-text">Ledger</span>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="expenses">Expenses</button>
+      <button class="tab" data-tab="add">+ Add</button>
+    </nav>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section class="panel active" id="tab-dashboard">
+    <div class="summary-row">
+      <div class="card total-card">
+        <div class="card-label">Total Spent</div>
+        <div class="card-value" id="total-amount">$0.00</div>
+        <div class="card-sub" id="total-count">0 transactions</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Top Category</div>
+        <div class="card-value" id="top-category">—</div>
+        <div class="card-sub" id="top-amount">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">This Month</div>
+        <div class="card-value" id="month-amount">$0.00</div>
+        <div class="card-sub">current period</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>By Category</h3>
+        <canvas id="pie-chart"></canvas>
+        <div class="legend" id="pie-legend"></div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Monthly Trend</h3>
+        <canvas id="bar-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPENSES LIST -->
+  <section class="panel" id="tab-expenses">
+    <div class="filter-bar">
+      <select id="filter-category">
+        <option value="All">All Categories</option>
+        {% for c in categories %}
+        <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+      <input type="date" id="filter-start" placeholder="From"/>
+      <input type="date" id="filter-end" placeholder="To"/>
+      <button class="btn-ghost" id="btn-filter">Filter</button>
+      <button class="btn-ghost" id="btn-clear-filter">Clear</button>
+    </div>
+    <div class="expense-list" id="expense-list">
+      <div class="empty-state">Loading expenses...</div>
+    </div>
+  </section>
+
+  <!-- ADD / EDIT -->
+  <section class="panel" id="tab-add">
+    <div class="form-container">
+      <h2 id="form-title">New Expense</h2>
+      <form id="expense-form">
+        <input type="hidden" id="edit-id"/>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" id="f-title" placeholder="e.g. Coffee, Rent…" required/>
+          </div>
+          <div class="form-group">
+            <label>Amount *</label>
+            <input type="number" id="f-amount" placeholder="0.00" step="0.01" min="0.01" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="f-category" required>
+              {% for c in categories %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="f-date" required/>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Note</label>
+          <textarea id="f-note" placeholder="Optional note…" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" id="submit-btn">Save Expense</button>
+          <button type="button" class="btn-ghost" id="cancel-edit" style="display:none">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="edit-modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <h2>Edit Expense</h2>
+      <form id="edit-form">
+        <input type="hidden" id="m-id"/>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="m-title" required/>
+          </div>
+          <div class="form-group">
+            <label>Amount</label>
+            <input type="number" id="m-amount" step="0.01" min="0.01" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="m-category">
+              {% for c in categories %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="m-date" required/>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Note</label>
+          <textarea id="m-note" rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Update</button>
+          <button type="button" class="btn-ghost" id="modal-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
